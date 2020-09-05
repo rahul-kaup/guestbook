@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.guestbook.service.MessageService;
-import com.guestbook.service.SecurityUtil;
+import com.guestbook.util.SecurityUtil;
 
 /**
  * Controller for guestbook requests

@@ -1,4 +1,4 @@
-package com.guestbook.service;
+package com.guestbook.util;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 

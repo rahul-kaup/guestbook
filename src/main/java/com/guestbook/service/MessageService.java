@@ -12,6 +12,7 @@ import com.guestbook.bean.MessageBean;
 import com.guestbook.converter.MesssageEntityToBeanConverter;
 import com.guestbook.entity.Message;
 import com.guestbook.repository.MessageRepository;
+import com.guestbook.util.SecurityUtil;
 
 import lombok.AllArgsConstructor;
 
