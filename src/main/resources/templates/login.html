@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Guest Book</title>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<style type="text/css">
+.login-box {
+	margin: auto;
+	width: 50%;
+	padding: 10px;
+	border: 1px solid #dbcbbd;
+}
+
+.container {
+	padding: 100px;
+}
+</style>
+
+</head>
+<body>
+
+	<div class="container">
+		<div class="login-box">
+			<form th:action="@{/login}" method="post">
+				<div class="form-group">
+					<label for="username">Username:</label> <input type="text" class="form-control" placeholder="Enter email" name="username">
+				</div>
+				<div class="form-group">
+					<label for="password">Password:</label> <input type="password" class="form-control" placeholder="Enter password" name="password">
+				</div>
+				<button type="submit" class="btn btn-secondary">Sign In</button>
+				<div th:if="${param.error}">Invalid username and password.</div>
+				<div th:if="${param.unauthorized}">You do not have enough permissions to perform this action.</div>
+				<div th:if="${param.logout}">You have been logged out.</div>
+			</form>
+		</div>
+	</div>
+</body>
+
+
+</html>
