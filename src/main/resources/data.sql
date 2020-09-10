@@ -1,0 +1,1 @@
+INSERT INTO user(user_id, username, fullname, role, password) VALUES 	(10000, 'admin@guestbook.com','Guestbook Admin', 'ADMIN', 'pass'), (10001, 'user@guestbook.com','Guestbook User', 'USER', 'pass')	

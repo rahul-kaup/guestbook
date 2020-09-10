@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+
+<head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="js/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="js/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<style type="text/css">
+div {
+	/*border: 1px solid black;*/
+	
+}
+</style>
+</head>
+
+<body>
+	<div style="margin-left: 35%; margin-top: 5%;">
+
+		<h2>Registration</h2>
+		</br>
+
+		<form action="/register" method="POST" enctype="utf8" class="form-horizontal">
+
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="firstName">First Name</label>
+				<div class="col-sm-4">
+					<input name="firstName" type="text" class="form-control" id="firstName" placeholder="Enter first name" />
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="email">Last Name</label>
+				<div class="col-sm-4">
+					<input type="text" class="form-control" name="lastName" placeholder="Enter last name">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="email">Email:</label>
+				<div class="col-sm-4">
+					<input type="email" class="form-control" name="email" placeholder="Enter email">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="pwd">Password:</label>
+				<div class="col-sm-4">
+					<input type="password" class="form-control" name="password" placeholder="Enter password">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-3" for="pwd">Confirm Password:</label>
+				<div class="col-sm-4">
+					<input type="password" class="form-control" name="confirmedPassword" placeholder="Confirm password">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</div>
+
+		</form>
+	</div>
+</body>
+</html>

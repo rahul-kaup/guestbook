@@ -4,19 +4,20 @@
 <meta charset="ISO-8859-1">
 <title>Guest Book</title>
 
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<!-- google apis great vibes font -->
 <link href='http://fonts.googleapis.com/css?family=Great+Vibes' rel='stylesheet' type='text/css'>
 
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
 <!-- jQuery library -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="js/jquery.min.js"></script>
 
 <!-- Popper JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="js/popper.min.js"></script>
 
 <!-- Latest compiled JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 
 <style type="text/css">
 body {
@@ -31,11 +32,9 @@ input, a, button {
 	font-size: x-large;
 }
 
-div {
-	/*border: 1px solid black;*/
-}
 </style>
 
+<!-- javascript for image preview -->
 <script type="text/javascript">
 	$(document).ready(
 			function() {
@@ -80,6 +79,7 @@ div {
 				});
 			});
 
+	// method for edit feature ui changes
 	function editMessage(messageId) {
 		$('#editNote' + messageId).show();
 		$('#messageNote' + messageId).hide();
@@ -192,7 +192,6 @@ div {
 			</div>
 		</div>
 	</div>
-
 
 </body>
 </html>

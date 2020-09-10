@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -64,7 +65,7 @@ class MessageServiceTest {
 		message.setUserId(1);
 
 		// mock the message repo to return the message
-		when(messageRepository.getAllMessages()).thenReturn(List.of(message));
+		when(messageRepository.getAllMessages()).thenReturn(Lists.list(message));
 
 		// mock the converter
 		when(messsageEntityToBeanConverter.convert(message)).thenReturn(new MessageBean(1L, "author", "note", null, false));
@@ -91,7 +92,7 @@ class MessageServiceTest {
 		message.setIsApproved(1);
 
 		// mock the message repo to return the message
-		when(messageRepository.getApprovedMessages()).thenReturn(List.of(message));
+		when(messageRepository.getApprovedMessages()).thenReturn(Lists.list(message));
 
 		// mock the converter
 		when(messsageEntityToBeanConverter.convert(message)).thenReturn(new MessageBean(1L, "author", "note", null, true));
@@ -197,7 +198,7 @@ class MessageServiceTest {
 		// make the call and assert true
 		assertFalse(messageService.addMessage("my note"));
 	}
-	
+
 	@Test
 	@WithMockUser(roles = { "USER" })
 	void testAddImageFailure() {

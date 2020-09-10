@@ -13,4 +13,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
 	@Query(value = "SELECT user_id FROM user WHERE username = ?1", nativeQuery = true)
 	long getUserIdByUsername(String name);
 
+	@Query(value = "SELECT * FROM user WHERE username = ?1", nativeQuery = true)
+	User getUserByUsername(String name);
+
 }

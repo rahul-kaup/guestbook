@@ -23,7 +23,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.guestbook.repository.UserRepository;
+import com.guestbook.service.CustomUserDetailsService;
 import com.guestbook.service.MessageService;
+import com.guestbook.service.UserService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(GuestBookController.class)
@@ -37,6 +39,12 @@ public class GuestBookControllerTest {
 
 	@MockBean
 	private UserRepository userRepository;
+
+	@MockBean
+	private UserService userService;
+
+	@MockBean
+	private CustomUserDetailsService customUserDetailsService;
 
 	@WithAnonymousUser
 	@Test
@@ -123,6 +131,12 @@ public class GuestBookControllerTest {
 	public void testAddPictureWithUserRedirectsToHome() throws Exception {
 		MockMultipartFile file = new MockMultipartFile("file", "filename.jpg", MediaType.TEXT_PLAIN_VALUE, "data".getBytes());
 		mvc.perform(multipart("/guestbook/add").file("picture", file.getBytes()).param("note", "the note").param("messageType", "picture")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/guestbook"));
+	}
+
+	@WithAnonymousUser
+	@Test
+	public void testUserRegistration() throws Exception {
+		mvc.perform(post("/register").param("firstName", "firstName").param("lastName", "lastName").param("email", "email").param("password", "password").param("confirmedPassword", "password")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login"));
 	}
 
 }
