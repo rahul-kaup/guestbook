@@ -15,7 +15,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.guestbook.entity.Message;
+import com.guestbook.entity.NoteMessage;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -30,7 +30,7 @@ class MessageRepositoryTest {
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
-	private MessageRepository messageRepository;
+	private NoteMessageRepository noteMessageRepository;
 
 	@Test
 	void injectedComponentsAreNotNull() {
@@ -38,68 +38,68 @@ class MessageRepositoryTest {
 		assertThat(jdbcTemplate).isNotNull();
 		assertThat(entityManager).isNotNull();
 		assertThat(userRepository).isNotNull();
-		assertThat(messageRepository).isNotNull();
+		assertThat(noteMessageRepository).isNotNull();
 	}
 
 	@Test
 	void testThatGetAllMessagesReturnsAllMessages() {
 
 		// add an unapproved message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		messageRepository.save(message);
+		noteMessageRepository.save(message);
 
 		// verify that the message is retrieved with default values
-		List<Message> messageList = messageRepository.getAllMessages();
+		List<NoteMessage> messageList = noteMessageRepository.getAllMessages();
 		assertEquals("verify there's just one message", 1, messageList.size());
-		Message retrievedMessage = messageList.get(0);
-		assertEquals("verify messageId is generated", 1L, retrievedMessage.getMessageId());
+		NoteMessage retrievedMessage = messageList.get(0);
+		assertEquals("verify messageId is generated", Long.valueOf(1), retrievedMessage.getMessageId());
 		assertEquals("verify note ", "my note", retrievedMessage.getNote());
-		assertEquals("verify isApproved is set as 0", 0, retrievedMessage.getIsApproved());
-		assertEquals("verify isDeleted is set as 0", 0, retrievedMessage.getIsDeleted());
+		assertEquals("verify isApproved is set as false", Boolean.FALSE, retrievedMessage.getIsApproved());
+		assertEquals("verify isDeleted is set as false", Boolean.FALSE, retrievedMessage.getIsDeleted());
 	}
 
 	@Test
 	void testThatGetAllMessagesDoesNotReturnDeletedMessages() {
 
 		// add an unapproved message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		messageRepository.save(message);
+		noteMessageRepository.save(message);
 
 		// verify that the message is retrieved with default values
-		List<Message> messageList = messageRepository.getAllMessages();
+		List<NoteMessage> messageList = noteMessageRepository.getAllMessages();
 		assertEquals("verify there's just one message", 1, messageList.size());
 		assertEquals("verify note ", "my note", messageList.get(0).getNote());
 
 		// delete the message
-		message.setIsDeleted(1);
-		messageRepository.save(message);
+		message.setIsDeleted(Boolean.TRUE);
+		noteMessageRepository.save(message);
 
 		// verify the deleted message is not returned
-		assertEquals("verify there's no message", 0, messageRepository.getAllMessages().size());
+		assertEquals("verify there's no message", 0, noteMessageRepository.getAllMessages().size());
 	}
 
 	@Test
 	void testThatGetApprovedMessagesReturnsOnlyApprovedMessages() {
 
 		// add an unapproved message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		messageRepository.save(message);
+		noteMessageRepository.save(message);
 
 		// verify no messages are returned
-		assertEquals("verify there's no approved message", 0, messageRepository.getApprovedMessages().size());
+		assertEquals("verify there's no approved message", 0, noteMessageRepository.getApprovedMessages().size());
 
 		// approve the message
-		message.setIsApproved(1);
-		messageRepository.save(message);
+		message.setIsApproved(Boolean.TRUE);
+		noteMessageRepository.save(message);
 
 		// verify the approved message is returned
-		Message retrievedMessage = messageRepository.getApprovedMessages().get(0);
+		NoteMessage retrievedMessage = noteMessageRepository.getApprovedMessages().get(0);
 		assertEquals("verify note ", "my note", retrievedMessage.getNote());
-		assertEquals("verify isApproved is set as 1", 1, retrievedMessage.getIsApproved());
-		assertEquals("verify isDeleted is set as 0", 0, retrievedMessage.getIsDeleted());
+		assertEquals("verify isApproved is set as true", Boolean.TRUE, retrievedMessage.getIsApproved());
+		assertEquals("verify isDeleted is set as false", Boolean.FALSE, retrievedMessage.getIsDeleted());
 
 	}
 
@@ -107,21 +107,21 @@ class MessageRepositoryTest {
 	void testThatGetApprovedMessagesDoesNotReturnDeletedMessages() {
 
 		// add a non deleted approved message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setIsApproved(1);
-		messageRepository.save(message);
+		message.setIsApproved(Boolean.TRUE);
+		noteMessageRepository.save(message);
 
 		// verify the message is returned
-		assertEquals("verify there's 1 message", 1, messageRepository.getApprovedMessages().size());
-		assertEquals("verify the note", "my note", messageRepository.getApprovedMessages().get(0).getNote());
+		assertEquals("verify there's 1 message", 1, noteMessageRepository.getApprovedMessages().size());
+		assertEquals("verify the note", "my note", noteMessageRepository.getApprovedMessages().get(0).getNote());
 
 		// delete the message
-		message.setIsDeleted(1);
-		messageRepository.save(message);
+		message.setIsDeleted(Boolean.TRUE);
+		noteMessageRepository.save(message);
 
 		// verify the deleted message is not returned
-		assertEquals("verify there's no message", 0, messageRepository.getApprovedMessages().size());
+		assertEquals("verify there's no message", 0, noteMessageRepository.getApprovedMessages().size());
 
 	}
 }

@@ -1,5 +1,7 @@
 package com.guestbook.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.guestbook.bean.MessageBean;
 import com.guestbook.converter.MesssageEntityToBeanConverter;
-import com.guestbook.entity.Message;
-import com.guestbook.repository.MessageRepository;
+import com.guestbook.entity.NoteMessage;
+import com.guestbook.entity.PictureMessage;
+import com.guestbook.repository.NoteMessageRepository;
+import com.guestbook.repository.PictureMessageRepository;
 import com.guestbook.util.SecurityUtil;
 
 import lombok.AllArgsConstructor;
@@ -24,7 +28,8 @@ import lombok.AllArgsConstructor;
 @Service
 public class MessageService {
 
-	private final MessageRepository messageRepository;
+	private final NoteMessageRepository noteMessageRepository;
+	private final PictureMessageRepository pictureMessageRepository;
 	private final UserService userService;
 	private final MesssageEntityToBeanConverter messsageEntityToBeanConverter;
 	private final Logger logger = LoggerFactory.getLogger(MessageService.class);
@@ -35,7 +40,18 @@ public class MessageService {
 	 * @return
 	 */
 	public List<MessageBean> getAllMessages() {
-		return messageRepository.getAllMessages().stream().map(messsageEntityToBeanConverter::convert).collect(Collectors.toList());
+		List<MessageBean> messages = new ArrayList<>();
+
+		// add all note messages
+		messages.addAll(noteMessageRepository.getAllMessages().stream().map(messsageEntityToBeanConverter::convert).collect(Collectors.toList()));
+
+		// add all picture messages
+		messages.addAll(pictureMessageRepository.getAllMessages().stream().map(messsageEntityToBeanConverter::convert).collect(Collectors.toList()));
+
+		// sort for display
+		Collections.sort(messages);
+
+		return messages;
 	}
 
 	/**
@@ -44,7 +60,18 @@ public class MessageService {
 	 * @return
 	 */
 	public List<MessageBean> getApprovedMessages() {
-		return messageRepository.getApprovedMessages().stream().map(messsageEntityToBeanConverter::convert).collect(Collectors.toList());
+		List<MessageBean> messages = new ArrayList<>();
+
+		// add all note messages
+		messages.addAll(noteMessageRepository.getApprovedMessages().stream().map(messsageEntityToBeanConverter::convert).collect(Collectors.toList()));
+
+		// add all picture messages
+		messages.addAll(pictureMessageRepository.getApprovedMessages().stream().map(messsageEntityToBeanConverter::convert).collect(Collectors.toList()));
+
+		// sort for display
+		Collections.sort(messages);
+
+		return messages;
 	}
 
 	/**
@@ -53,12 +80,12 @@ public class MessageService {
 	 * @param message String
 	 */
 	public boolean addMessage(String message) {
-		logger.debug("addMessage() :: message = " + message);
+		logger.debug("addMessage() :: message = {}", message);
 		try {
-			Message messageEntity = new Message();
+			NoteMessage messageEntity = new NoteMessage();
 			messageEntity.setNote(message);
 			messageEntity.setUserId(userService.getUseridByUsername(SecurityUtil.getLoggedInUsername()));
-			return messageRepository.save(messageEntity) != null;
+			return noteMessageRepository.save(messageEntity) != null;
 		} catch (IllegalArgumentException e) {
 			logger.error("addMessage() :: exception while adding note message ", e);
 		}
@@ -71,12 +98,12 @@ public class MessageService {
 	 * @param image byte[]
 	 */
 	public boolean addMessage(byte[] image) {
-		logger.debug("addMessage() :: image size = " + image.length);
+		logger.debug("addMessage() :: image size = {}", Integer.valueOf(image.length));
 		try {
-			Message messageEntity = new Message();
+			PictureMessage messageEntity = new PictureMessage();
 			messageEntity.setImage(image);
 			messageEntity.setUserId(userService.getUseridByUsername(SecurityUtil.getLoggedInUsername()));
-			return messageRepository.save(messageEntity) != null;
+			return pictureMessageRepository.save(messageEntity) != null;
 		} catch (IllegalArgumentException e) {
 			logger.error("addMessage() :: exception while adding image message", e);
 		}
@@ -89,17 +116,16 @@ public class MessageService {
 	 * @param messageId long
 	 * @param note      String
 	 */
-	public boolean editMessage(long messageId, String note) {
-		logger.debug("editMessage() :: messageId = " + messageId + ", note = " + note);
+	public boolean editMessage(Long messageId, String note) {
+		logger.debug("editMessage() :: messageId = {}, note = {}", messageId, note);
 		try {
-			Optional<Message> messageEntity = messageRepository.findById(messageId);
+			Optional<NoteMessage> messageEntity = noteMessageRepository.findById(messageId);
 			if (messageEntity.isPresent()) {
-				Message message = messageEntity.get();
+				NoteMessage message = messageEntity.get();
 				message.setNote(note);
-				return messageRepository.save(message) != null;
-			} else {
-				logger.error("editMessage() :: message not found while attempting to edit");
+				return noteMessageRepository.save(message) != null;
 			}
+			logger.error("editMessage() :: message not found while attempting to edit");
 		} catch (IllegalArgumentException e) {
 			logger.error("editMessage() :: exception while editing message ", e);
 		}
@@ -111,18 +137,28 @@ public class MessageService {
 	 * 
 	 * @param messageId long
 	 */
-	public boolean approveMessage(long messageId) {
-		logger.debug("approveMessage() :: messageId = " + messageId);
-		Optional<Message> messageEntity = messageRepository.findById(messageId);
+	public boolean approveMessage(Long messageId) {
+		logger.debug("approveMessage() :: messageId = {}", messageId);
+
 		try {
+			// approve note message
+			Optional<NoteMessage> messageEntity = noteMessageRepository.findById(messageId);
 			if (messageEntity.isPresent()) {
-				Message message = messageEntity.get();
-				message.setIsApproved(1);
-				return messageRepository.save(message) != null;
-			} else {
-				logger.error("approveMessage() :: message with id " + messageId + " not found while attempting to approve");
-				return false;
+				NoteMessage message = messageEntity.get();
+				message.setIsApproved(Boolean.TRUE);
+				return noteMessageRepository.save(message) != null;
 			}
+
+			// or approve picture message
+			Optional<PictureMessage> pictureMessageEntity = pictureMessageRepository.findById(messageId);
+			if (pictureMessageEntity.isPresent()) {
+				PictureMessage pictureMessage = pictureMessageEntity.get();
+				pictureMessage.setIsApproved(Boolean.TRUE);
+				return pictureMessageRepository.save(pictureMessage) != null;
+			}
+
+			logger.error("approveMessage() :: message with id {} not found while attempting to approve", messageId);
+			return false;
 		} catch (IllegalArgumentException e) {
 			logger.error("approveMessage() :: exception while approving message", e);
 			return false;
@@ -134,17 +170,25 @@ public class MessageService {
 	 * 
 	 * @param messageId long
 	 */
-	public boolean deleteMessage(long messageId) {
-		logger.debug("deleteMessage() :: messageId = " + messageId);
+	public boolean deleteMessage(Long messageId) {
+		logger.debug("deleteMessage() :: messageId = {}", messageId);
 		try {
-			Optional<Message> messageEntity = messageRepository.findById(messageId);
+			// delete note message
+			Optional<NoteMessage> messageEntity = noteMessageRepository.findById(messageId);
 			if (messageEntity.isPresent()) {
-				Message message = messageEntity.get();
-				message.setIsDeleted(1);
-				return messageRepository.save(message) != null;
-			} else {
-				logger.error("deleteMessage() :: message with id " + messageId + " not found while attempting to delete");
+				NoteMessage message = messageEntity.get();
+				message.setIsDeleted(Boolean.TRUE);
+				return noteMessageRepository.save(message) != null;
 			}
+
+			// or delete picture message
+			Optional<PictureMessage> pictureMessageEntity = pictureMessageRepository.findById(messageId);
+			if (pictureMessageEntity.isPresent()) {
+				PictureMessage pictureMessage = pictureMessageEntity.get();
+				pictureMessage.setIsDeleted(Boolean.TRUE);
+				return pictureMessageRepository.save(pictureMessage) != null;
+			}
+			logger.error("deleteMessage() :: message with id {} not found while attempting to delete", messageId);
 		} catch (IllegalArgumentException e) {
 			logger.error("deleteMessage() :: approveMessage() :: exception while approving message", e);
 		}

@@ -1,10 +1,9 @@
 package com.guestbook.entity;
 
-import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
+import javax.persistence.MappedSuperclass;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -18,18 +17,15 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Entity
 @EqualsAndHashCode
+@MappedSuperclass
 public class Message {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long messageId;
-	private long userId;
-	private String note;
-	@Lob
-	private byte[] image;
-	private int isApproved;
-	private int isDeleted;
+	private Long messageId;
+	private Long userId;
+	private Boolean isApproved = Boolean.FALSE;
+	private Boolean isDeleted = Boolean.FALSE;
 
 }

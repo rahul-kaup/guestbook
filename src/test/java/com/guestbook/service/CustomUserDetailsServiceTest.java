@@ -25,7 +25,7 @@ class CustomUserDetailsServiceTest {
 	void testDefaultAdminDetails() {
 
 		// mock the user repo
-		when(userRepository.getUserIdByUsername("username")).thenReturn(1L);
+		when(userRepository.getUserIdByUsername("username")).thenReturn(Long.valueOf(1L));
 
 		// make the call and verfiy user id
 		assertEquals(org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder().username("admin@guestbook.com").password("pass").roles("ADMIN").build(), customUserDetailsService.loadUserByUsername("admin@guestbook.com"));
@@ -35,7 +35,7 @@ class CustomUserDetailsServiceTest {
 	void testDefaultUserDetails() {
 
 		// mock the user repo
-		when(userRepository.getUserIdByUsername("username")).thenReturn(1L);
+		when(userRepository.getUserIdByUsername("username")).thenReturn(Long.valueOf(1L));
 
 		// make the call and verfiy user id
 		assertEquals(org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder().username("user@guestbook.com").password("pass").roles("USER").build(), customUserDetailsService.loadUserByUsername("user@guestbook.com"));
@@ -45,7 +45,7 @@ class CustomUserDetailsServiceTest {
 	void testUserDetails() {
 
 		// create test user data
-		User user = new User(0, "test@guestbook.com", "firstName lastName", "USER", "password123");
+		User user = new User(Long.valueOf(0), "test@guestbook.com", "firstName lastName", "USER", "password123");
 
 		// mock the user repo
 		when(userRepository.getUserByUsername("test@guestbook.com")).thenReturn(user);

@@ -6,7 +6,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,8 +21,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.guestbook.bean.MessageBean;
 import com.guestbook.converter.MesssageEntityToBeanConverter;
-import com.guestbook.entity.Message;
-import com.guestbook.repository.MessageRepository;
+import com.guestbook.entity.NoteMessage;
+import com.guestbook.entity.PictureMessage;
+import com.guestbook.repository.NoteMessageRepository;
+import com.guestbook.repository.PictureMessageRepository;
 import com.guestbook.repository.UserRepository;
 
 @ExtendWith(SpringExtension.class)
@@ -33,7 +34,10 @@ class MessageServiceTest {
 	private UserRepository userRepository;
 
 	@Mock
-	private MessageRepository messageRepository;
+	private NoteMessageRepository noteMessageRepository;
+
+	@Mock
+	private PictureMessageRepository pictureMessageRepository;
 
 	@Mock
 	private MesssageEntityToBeanConverter messsageEntityToBeanConverter;
@@ -53,22 +57,22 @@ class MessageServiceTest {
 	@Test
 	void injectedComponentsAreNotNull() {
 		assertThat(userRepository).isNotNull();
-		assertThat(messageRepository).isNotNull();
+		assertThat(noteMessageRepository).isNotNull();
 	}
 
 	@Test
 	void testGetAllMessages() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
+		message.setUserId(Long.valueOf(1L));
 
 		// mock the message repo to return the message
-		when(messageRepository.getAllMessages()).thenReturn(Lists.list(message));
+		when(noteMessageRepository.getAllMessages()).thenReturn(Lists.list(message));
 
 		// mock the converter
-		when(messsageEntityToBeanConverter.convert(message)).thenReturn(new MessageBean(1L, "author", "note", null, false));
+		when(messsageEntityToBeanConverter.convert(message)).thenReturn(new MessageBean(Long.valueOf(1L), "author", "note", null, false));
 
 		// make the call
 		List<MessageBean> messageBeanList = messageService.getAllMessages();
@@ -76,7 +80,7 @@ class MessageServiceTest {
 		// verify that the message bean
 		assertEquals("verify there's one message", 1, messageBeanList.size());
 		MessageBean messageBean = messageBeanList.get(0);
-		assertEquals("verify messageId is generated", 1, messageBean.getMessageId());
+		assertEquals("verify messageId is generated", Long.valueOf(1), messageBean.getMessageId());
 		assertEquals("verify note ", "note", messageBean.getNote());
 		assertFalse("verify isApproved is set as false", messageBean.isApproved());
 		assertEquals("verify author", "author", messageBean.getAuthor());
@@ -86,16 +90,16 @@ class MessageServiceTest {
 	void testGetApprovedMessages() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
-		message.setIsApproved(1);
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the message repo to return the message
-		when(messageRepository.getApprovedMessages()).thenReturn(Lists.list(message));
+		when(noteMessageRepository.getApprovedMessages()).thenReturn(Lists.list(message));
 
 		// mock the converter
-		when(messsageEntityToBeanConverter.convert(message)).thenReturn(new MessageBean(1L, "author", "note", null, true));
+		when(messsageEntityToBeanConverter.convert(message)).thenReturn(new MessageBean(Long.valueOf(1L), "author", "note", null, true));
 
 		// make the call
 		List<MessageBean> messageBeanList = messageService.getApprovedMessages();
@@ -103,7 +107,7 @@ class MessageServiceTest {
 		// verify that the message bean
 		assertEquals("verify there's one message", 1, messageBeanList.size());
 		MessageBean messageBean = messageBeanList.get(0);
-		assertEquals("verify messageId is generated", 1, messageBean.getMessageId());
+		assertEquals("verify messageId is generated", Long.valueOf(1), messageBean.getMessageId());
 		assertEquals("verify note ", "note", messageBean.getNote());
 		assertTrue("verify isApproved is set as true", messageBean.isApproved());
 		assertEquals("verify author", "author", messageBean.getAuthor());
@@ -114,16 +118,15 @@ class MessageServiceTest {
 	void testAddNoteMessageSuccess() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
+		message.setUserId(Long.valueOf(1L));
 
-		// mock
-		// when(userRepository.getUserIdByUsername("user")).thenReturn(1L);
-		when(userService.getUseridByUsername("user")).thenReturn(1L);
+		// mock the user service
+		when(userService.getUseridByUsername("user")).thenReturn(Long.valueOf(1L));
 
 		// mock the message repo to return the message
-		when(messageRepository.save(message)).thenReturn(message);
+		when(noteMessageRepository.save(message)).thenReturn(message);
 
 		// make the call and assert true
 		assertTrue(messageService.addMessage("my note"));
@@ -131,19 +134,19 @@ class MessageServiceTest {
 
 	@Test
 	@WithMockUser(roles = { "USER" })
-	void testAddImageMessageSuccess() throws IOException {
+	void testAddImageMessageSuccess() {
 
 		// create a test message
-		Message message = new Message();
+		PictureMessage message = new PictureMessage();
 		message.setImage("IMG".getBytes());
-		message.setUserId(1);
+		message.setUserId(Long.valueOf(1L));
 
 		// mock
 		// when(userRepository.getUserIdByUsername("user")).thenReturn(1L);
-		when(userService.getUseridByUsername("user")).thenReturn(1L);
+		when(userService.getUseridByUsername("user")).thenReturn(Long.valueOf(1L));
 
 		// mock the message repo to return the message
-		when(messageRepository.save(message)).thenReturn(message);
+		when(pictureMessageRepository.save(message)).thenReturn(message);
 
 		// make the call and assert true
 		assertTrue(messageService.addMessage("IMG".getBytes()));
@@ -154,11 +157,12 @@ class MessageServiceTest {
 	void testAddNoteFailureWithIllegalArgumentException() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
+		message.setUserId(Long.valueOf(0));
 
 		// mock the message repo save to throw exception
-		when(messageRepository.save(message)).thenThrow(new IllegalArgumentException());
+		when(noteMessageRepository.save(message)).thenThrow(new IllegalArgumentException());
 
 		// make the call and assert true
 		assertFalse(messageService.addMessage("my note"));
@@ -169,11 +173,12 @@ class MessageServiceTest {
 	void testAddImageFailureWithIllegalArgumentException() {
 
 		// create a test message
-		Message message = new Message();
+		PictureMessage message = new PictureMessage();
 		message.setImage("IMG".getBytes());
+		message.setUserId(Long.valueOf(0));
 
 		// mock the message repo save to throw exception
-		when(messageRepository.save(message)).thenThrow(new IllegalArgumentException());
+		when(pictureMessageRepository.save(message)).thenThrow(new IllegalArgumentException());
 
 		// make the call and assert true
 		assertFalse(messageService.addMessage("IMG".getBytes()));
@@ -184,16 +189,16 @@ class MessageServiceTest {
 	void testAddNoteFailure() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
-		message.setIsApproved(1);
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenReturn(null);
+		when(noteMessageRepository.save(message)).thenReturn(null);
 
 		// make the call and assert true
 		assertFalse(messageService.addMessage("my note"));
@@ -204,15 +209,15 @@ class MessageServiceTest {
 	void testAddImageFailure() {
 
 		// create a test message
-		Message message = new Message();
+		PictureMessage message = new PictureMessage();
 		message.setImage("IMG".getBytes());
-		message.setUserId(1);
+		message.setUserId(Long.valueOf(1L));
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenReturn(null);
+		when(pictureMessageRepository.save(message)).thenReturn(null);
 
 		// make the call and assert true
 		assertFalse(messageService.addMessage("IMG".getBytes()));
@@ -222,211 +227,283 @@ class MessageServiceTest {
 	void testEditMessageSuccess() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
-		message.setIsApproved(1);
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to return the message
-		when(messageRepository.save(message)).thenReturn(message);
+		when(noteMessageRepository.save(message)).thenReturn(message);
 
 		// make the call and assert true
-		assertTrue(messageService.editMessage(1, "my note"));
+		assertTrue(messageService.editMessage(Long.valueOf(1L), "my note"));
 	}
 
 	@Test
 	void testEditMessageFailureWithIllegalArgumentException() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
-		message.setIsApproved(1);
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo save to throw exception
-		when(messageRepository.save(message)).thenThrow(new IllegalArgumentException());
+		when(noteMessageRepository.save(message)).thenThrow(new IllegalArgumentException());
 
 		// make the call and assert true
-		assertFalse(messageService.editMessage(1, "my note"));
+		assertFalse(messageService.editMessage(Long.valueOf(1L), "my note"));
 	}
 
 	@Test
 	void testEditMessageFailure() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
-		message.setIsApproved(1);
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenReturn(null);
+		when(noteMessageRepository.save(message)).thenReturn(null);
 
 		// make the call and assert true
-		assertFalse(messageService.editMessage(1, "my note"));
+		assertFalse(messageService.editMessage(Long.valueOf(1L), "my note"));
 	}
 
 	@Test
 	void testEditMessageMessageNotFound() {
 
 		// create a test message
-		Message message = new Message();
+		NoteMessage message = new NoteMessage();
 		message.setNote("my note");
-		message.setUserId(1);
-		message.setIsApproved(1);
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to not find message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.empty());
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.empty());
 
 		// make the call and assert true
-		assertFalse(messageService.editMessage(1, "my note"));
+		assertFalse(messageService.editMessage(Long.valueOf(1L), "my note"));
 	}
 
 	@Test
-	void testApproveMessageSuccess() {
+	void testApproveNoteMessageSuccess() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to return the message
-		when(messageRepository.save(message)).thenReturn(message);
+		when(noteMessageRepository.save(message)).thenReturn(message);
 
 		// make the call and assert true
-		assertTrue(messageService.approveMessage(1));
+		assertTrue(messageService.approveMessage(Long.valueOf(1L)));
 	}
 
 	@Test
-	void testApproveMessageFailure() {
+	void testApprovePictureMessageSuccess() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		PictureMessage message = new PictureMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
-		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenReturn(null);
+		// mock the message repo to return the message
+		when(pictureMessageRepository.save(message)).thenReturn(message);
 
 		// make the call and assert true
-		assertFalse(messageService.approveMessage(1));
+		assertTrue(messageService.approveMessage(Long.valueOf(1L)));
+	}
+
+	@Test
+	void testApproveNoteMessageFailure() {
+
+		// create a test message
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo to not save successfully
+		when(noteMessageRepository.save(message)).thenReturn(null);
+
+		// make the call and assert true
+		assertFalse(messageService.approveMessage(Long.valueOf(1L)));
+	}
+
+	@Test
+	void testApprovePictureMessageFailure() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo to not save successfully
+		when(pictureMessageRepository.save(message)).thenReturn(null);
+
+		// make the call and assert true
+		assertFalse(messageService.approveMessage(Long.valueOf(1L)));
 	}
 
 	@Test
 	void testApproveMessageFailureWithIllegalArgumentException() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenThrow(new IllegalArgumentException());
+		when(noteMessageRepository.save(message)).thenThrow(new IllegalArgumentException());
 
 		// make the call and assert true
-		assertFalse(messageService.approveMessage(1));
+		assertFalse(messageService.approveMessage(Long.valueOf(1L)));
 	}
 
 	@Test
 	void testApproveMessageMessageNotFound() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to not find message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.empty());
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.empty());
 
 		// make the call and assert true
-		assertFalse(messageService.approveMessage(1));
+		assertFalse(messageService.approveMessage(Long.valueOf(1L)));
 	}
 
 	@Test
-	void testDeleteMessageSuccess() {
+	void testDeleteNoteMessageSuccess() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to return the message
-		when(messageRepository.save(message)).thenReturn(message);
+		when(noteMessageRepository.save(message)).thenReturn(message);
 
 		// make the call and assert true
-		assertTrue(messageService.deleteMessage(1));
+		assertTrue(messageService.deleteMessage(Long.valueOf(1L)));
+	}
+
+	@Test
+	void testDeletePictureMessageSuccess() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo to return the message
+		when(pictureMessageRepository.save(message)).thenReturn(message);
+
+		// make the call and assert true
+		assertTrue(messageService.deleteMessage(Long.valueOf(1L)));
 	}
 
 	@Test
 	void testDeleteMessageFailureWithIllegalArgumentException() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenThrow(new IllegalArgumentException());
+		when(noteMessageRepository.save(message)).thenThrow(new IllegalArgumentException());
 
 		// make the call and assert true
-		assertFalse(messageService.deleteMessage(1));
+		assertFalse(messageService.deleteMessage(Long.valueOf(1L)));
 	}
 
 	@Test
-	void testDeleteMessageFailure() {
+	void testDeleteNoteMessageFailure() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to find the message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
 
 		// mock the message repo to not save successfully
-		when(messageRepository.save(message)).thenReturn(null);
+		when(noteMessageRepository.save(message)).thenReturn(null);
 
 		// make the call and assert true
-		assertFalse(messageService.deleteMessage(1));
+		assertFalse(messageService.deleteMessage(Long.valueOf(1L)));
+	}
+
+	@Test
+	void testDeletePictureMessageFailure() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo to not save successfully
+		when(pictureMessageRepository.save(message)).thenReturn(null);
+
+		// make the call and assert true
+		assertFalse(messageService.deleteMessage(Long.valueOf(1L)));
 	}
 
 	@Test
 	void testDeleteMessageMessageNotFound() {
 
 		// create a test message
-		Message message = new Message();
-		message.setUserId(1);
-		message.setIsApproved(1);
+		NoteMessage message = new NoteMessage();
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
 
 		// mock the messages repo to not find message by id
-		when(messageRepository.findById(1L)).thenReturn(Optional.empty());
+		when(noteMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.empty());
 
 		// make the call and assert true
-		assertFalse(messageService.deleteMessage(1));
+		assertFalse(messageService.deleteMessage(Long.valueOf(1L)));
 	}
 
 }

@@ -28,17 +28,21 @@ class UserServiceTest {
 	void testGetUserIdByUsername() {
 
 		// mock the user repo
-		when(userRepository.getUserIdByUsername("username")).thenReturn(1L);
+		when(userRepository.getUserIdByUsername("username")).thenReturn(Long.valueOf(1L));
 
 		// make the call and verfiy user id
-		assertEquals(1, userService.getUseridByUsername("username"));
+		assertEquals(Long.valueOf(1L), userService.getUseridByUsername("username"));
 	}
 
 	@Test
 	void testCreateUserSuccess() {
 
 		// create test user data
-		User user = new User(0, "email", "firstName lastName", "USER", "password");
+		User user = new User();
+		user.setUsername("email");
+		user.setFullname("firstName lastName");
+		user.setRole("USER");
+		user.setPassword("password");
 
 		// mock the user repo
 		when(userRepository.save(user)).thenReturn(user);
@@ -50,8 +54,7 @@ class UserServiceTest {
 	@Test
 	void testCreateUserFailure() {
 
-		// create test user data
-		User user = new User(0, "email", "firstName lastName", "USER", "password");
+		User user = new User(Long.valueOf(1), "email", "firstName lastName", "USER", "password");
 
 		// mock the user repo
 		when(userRepository.save(user)).thenReturn(null);

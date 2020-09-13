@@ -1,4 +1,3 @@
-
 package com.guestbook.entity;
 
 import javax.persistence.Entity;
@@ -17,15 +16,14 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
 @ToString
+@EqualsAndHashCode
 @Entity
-
 public class User {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long userId;
+	private Long userId;
 	private String username;
 	private String fullname;
 	private String role;
