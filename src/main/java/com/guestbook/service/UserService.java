@@ -46,17 +46,19 @@ public class UserService implements GuestbookConstants {
 	}
 
 	/**
-	 * Returns wheter user already exists
+	 * Returns whether user already exists
 	 * 
 	 * @param username
 	 * @return
 	 */
 	public boolean isUserAlreadyRegistered(String username) {
+		logger.debug("isUserAlreadyRegistered():: username = {}", username);
 		User user = userRepository.getUserByUsername(username);
-		logger.debug("user = " + user);
 		if (user != null) {
+			logger.debug("isUserAlreadyRegistered():: user already registered");
 			return true;
 		}
+		logger.debug("isUserAlreadyRegistered():: user not yet registered");
 		return false;
 	}
 

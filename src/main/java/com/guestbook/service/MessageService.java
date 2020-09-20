@@ -111,7 +111,7 @@ public class MessageService {
 	}
 
 	/**
-	 * Edits a message
+	 * Edits a note message
 	 * 
 	 * @param messageId long
 	 * @param note      String
@@ -125,9 +125,31 @@ public class MessageService {
 				message.setNote(note);
 				return noteMessageRepository.save(message) != null;
 			}
-			logger.error("editMessage() :: message not found while attempting to edit");
+			logger.error("editMessage() :: message not found while attempting to edit note message");
 		} catch (IllegalArgumentException e) {
-			logger.error("editMessage() :: exception while editing message ", e);
+			logger.error("editMessage() :: exception while editing note message ", e);
+		}
+		return false;
+	}
+
+	/**
+	 * Edits a picture message
+	 * 
+	 * @param messageId long
+	 * @param note      String
+	 */
+	public boolean editMessage(Long messageId, byte[] picture) {
+		logger.debug("editMessage() :: messageId = {}, pictureSize = {}", messageId, Integer.valueOf(picture.length));
+		try {
+			Optional<PictureMessage> messageEntity = pictureMessageRepository.findById(messageId);
+			if (messageEntity.isPresent()) {
+				PictureMessage message = messageEntity.get();
+				message.setImage(picture);
+				return pictureMessageRepository.save(message) != null;
+			}
+			logger.error("editMessage() :: message not found while attempting to edit picture message");
+		} catch (IllegalArgumentException e) {
+			logger.error("editMessage() :: exception while editing picture message ", e);
 		}
 		return false;
 	}

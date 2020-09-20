@@ -224,7 +224,7 @@ class MessageServiceTest {
 	}
 
 	@Test
-	void testEditMessageSuccess() {
+	void testEditNoteMessageSuccess() {
 
 		// create a test message
 		NoteMessage message = new NoteMessage();
@@ -243,7 +243,7 @@ class MessageServiceTest {
 	}
 
 	@Test
-	void testEditMessageFailureWithIllegalArgumentException() {
+	void testEditNoteMessageFailureWithIllegalArgumentException() {
 
 		// create a test message
 		NoteMessage message = new NoteMessage();
@@ -262,7 +262,7 @@ class MessageServiceTest {
 	}
 
 	@Test
-	void testEditMessageFailure() {
+	void testEditNoteMessageFailure() {
 
 		// create a test message
 		NoteMessage message = new NoteMessage();
@@ -281,7 +281,7 @@ class MessageServiceTest {
 	}
 
 	@Test
-	void testEditMessageMessageNotFound() {
+	void testEditNoteMessageMessageNotFound() {
 
 		// create a test message
 		NoteMessage message = new NoteMessage();
@@ -294,6 +294,79 @@ class MessageServiceTest {
 
 		// make the call and assert true
 		assertFalse(messageService.editMessage(Long.valueOf(1L), "my note"));
+	}
+
+	@Test
+	void testEditPictureMessageSuccess() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setImage("IMG".getBytes());
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo to return the message
+		when(pictureMessageRepository.save(message)).thenReturn(message);
+
+		// make the call and assert true
+		assertTrue(messageService.editMessage(Long.valueOf(1L), "IMG".getBytes()));
+	}
+
+	@Test
+	void testEditPictureMessageFailureWithIllegalArgumentException() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setImage("IMG".getBytes());
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo save to throw exception
+		when(pictureMessageRepository.save(message)).thenThrow(new IllegalArgumentException());
+
+		// make the call and assert true
+		assertFalse(messageService.editMessage(Long.valueOf(1L), "IMG".getBytes()));
+	}
+
+	@Test
+	void testEditPictureMessageFailure() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setImage("IMG".getBytes());
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to find the message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.of(message));
+
+		// mock the message repo to not save successfully
+		when(pictureMessageRepository.save(message)).thenReturn(null);
+
+		// make the call and assert true
+		assertFalse(messageService.editMessage(Long.valueOf(1L), "IMG".getBytes()));
+	}
+
+	@Test
+	void testEditPictureMessageMessageNotFound() {
+
+		// create a test message
+		PictureMessage message = new PictureMessage();
+		message.setImage("IMG".getBytes());
+		message.setUserId(Long.valueOf(1L));
+		message.setIsApproved(Boolean.TRUE);
+
+		// mock the messages repo to not find message by id
+		when(pictureMessageRepository.findById(Long.valueOf(1L))).thenReturn(Optional.empty());
+
+		// make the call and assert true
+		assertFalse(messageService.editMessage(Long.valueOf(1L), "IMG".getBytes()));
 	}
 
 	@Test

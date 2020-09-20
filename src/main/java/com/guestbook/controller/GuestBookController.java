@@ -79,7 +79,7 @@ public class GuestBookController implements GuestbookConstants {
 	}
 
 	/**
-	 * Mapping method for editing an existing message
+	 * Mapping method for editing an existing note message
 	 * 
 	 * @param model
 	 * @param messageId
@@ -87,12 +87,32 @@ public class GuestBookController implements GuestbookConstants {
 	 * @return
 	 * @throws IOException
 	 */
-	@PostMapping(MAPPING_GUESTBOOK_EDIT)
+	@PostMapping(MAPPING_GUESTBOOK_EDIT_NOTE)
 	@Secured(ROLE_ADMIN)
-	public RedirectView editMessage(Model model, @RequestParam() String messageId, @RequestParam String editedNote) throws IOException {
+	public RedirectView editNoteMessage(Model model, @RequestParam() String messageId, @RequestParam String editedNote) throws IOException {
 		logger.debug("editMessage() :: messageId = {}, editedNote = {}", messageId, editedNote);
 		if (SecurityUtil.isLoggedInUserOfRoleAdmin()) {
 			messageService.editMessage(Long.valueOf(messageId), editedNote);
+			return new RedirectView(MAPPING_GUESTBOOK_HOME);
+		}
+		return new RedirectView(REDIRECT_LOGIN_UNAUTHORIZED);
+	}
+
+	/**
+	 * Mapping method for editing an existing picture message
+	 * 
+	 * @param model
+	 * @param messageId
+	 * @param picture
+	 * @return
+	 * @throws IOException
+	 */
+	@PostMapping(MAPPING_GUESTBOOK_EDIT_PICTURE)
+	@Secured(ROLE_ADMIN)
+	public RedirectView editPictureMessage(Model model, @RequestParam() String messageId, @RequestParam MultipartFile picture) throws IOException {
+		logger.debug("editMessage() :: messageId = {}, picture size = {}", messageId, Long.valueOf(picture.getSize()));
+		if (SecurityUtil.isLoggedInUserOfRoleAdmin()) {
+			messageService.editMessage(Long.valueOf(messageId), picture.getBytes());
 			return new RedirectView(MAPPING_GUESTBOOK_HOME);
 		}
 		return new RedirectView(REDIRECT_LOGIN_UNAUTHORIZED);

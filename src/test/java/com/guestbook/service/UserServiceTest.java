@@ -63,4 +63,38 @@ class UserServiceTest {
 		assertFalse(userService.createUser(new UserBean("email", "firstName", "lastName", "password")));
 	}
 
+	@Test
+	void testIsUserAlreadyRegistered() {
+
+		// create test user data
+		User user = new User();
+		user.setUsername("test@test.com");
+		user.setFullname("firstName lastName");
+		user.setRole("USER");
+		user.setPassword("password");
+
+		// mock the user repo
+		when(userRepository.getUserByUsername("test@test.com")).thenReturn(user);
+
+		// make the call and verify success response
+		assertTrue(userService.isUserAlreadyRegistered("test@test.com"));
+	}
+	
+	@Test
+	void testIsUserNotAlreadyRegistered() {
+
+		// create test user data
+		User user = new User();
+		user.setUsername("test@test.com");
+		user.setFullname("firstName lastName");
+		user.setRole("USER");
+		user.setPassword("password");
+
+		// mock the user repo
+		when(userRepository.getUserByUsername("test@test.com")).thenReturn(null);
+
+		// make the call and verify success response
+		assertFalse(userService.isUserAlreadyRegistered("test@test.com"));
+	}
+
 }

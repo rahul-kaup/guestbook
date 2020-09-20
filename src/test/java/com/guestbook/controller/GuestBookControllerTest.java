@@ -2,6 +2,7 @@ package com.guestbook.controller;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -60,20 +61,34 @@ public class GuestBookControllerTest {
 
 	@WithAnonymousUser
 	@Test
-	public void testEditWithAnonymousUserRedirectsToLogin() throws Exception {
+	public void testEditNoteWithAnonymousUserRedirectsToLogin() throws Exception {
 		mvc.perform(post("/guestbook/edit").param("messageId", "1").param("editedNote", "the note")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
 	@WithMockUser(roles = { "USER" })
 	@Test
-	public void testEditWithUserRedirectsToLogin() throws Exception {
-		mvc.perform(post("/guestbook/edit").param("messageId", "1").param("editedNote", "the note")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login?unauthorized"));
+	public void testEditNoteWithUserRedirectsToLogin() throws Exception {
+		mvc.perform(post("/guestbook/edit-note").param("messageId", "1").param("editedNote", "the note")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login?unauthorized"));
+	}
+
+	@WithMockUser(roles = { "ADMIN" })
+	@Test
+	public void testEditPictureWithAdminRedirectsToGuestbook() throws Exception {
+		MockMultipartFile file = new MockMultipartFile("file", "image.jpg", MediaType.IMAGE_JPEG_VALUE, "IMG".getBytes());
+		mvc.perform(multipart("/guestbook/edit-picture").file("picture", file.getBytes()).param("messageId", "1")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/guestbook"));
+	}
+
+	@WithMockUser(roles = { "USER" })
+	@Test
+	public void testEditPictureWithUserRedirectsToLogin() throws Exception {
+		MockMultipartFile file = new MockMultipartFile("file", "image.jpg", MediaType.IMAGE_JPEG_VALUE, "IMG".getBytes());
+		mvc.perform(multipart("/guestbook/edit-picture").file("picture", file.getBytes()).param("messageId", "1")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login?unauthorized"));
 	}
 
 	@WithMockUser(roles = { "ADMIN" })
 	@Test
 	public void testEditWithAdminRedirectsToGuestbook() throws Exception {
-		mvc.perform(post("/guestbook/edit").param("messageId", "1").param("editedNote", "the note")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/guestbook"));
+		mvc.perform(post("/guestbook/edit-note").param("messageId", "1").param("editedNote", "the note")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/guestbook"));
 	}
 
 	@WithAnonymousUser
@@ -115,7 +130,7 @@ public class GuestBookControllerTest {
 	@WithAnonymousUser
 	@Test
 	public void testAddWithAnonymousUserRedirectsToLogin() throws Exception {
-		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "Hello, World!".getBytes());
+		MockMultipartFile file = new MockMultipartFile("file", "hello.txt", MediaType.TEXT_PLAIN_VALUE, "IMG".getBytes());
 		mvc.perform(multipart("/guestbook/add").file("picture", file.getBytes()).param("note", "the note").param("messageType", "note")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/login"));
 	}
 
@@ -136,7 +151,14 @@ public class GuestBookControllerTest {
 	@WithAnonymousUser
 	@Test
 	public void testUserRegistration() throws Exception {
-		mvc.perform(post("/register").param("firstName", "firstName").param("lastName", "lastName").param("email", "email").param("password", "password").param("confirmedPassword", "password")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login"));
+		mvc.perform(post("/register").param("firstName", "firstName").param("lastName", "lastName").param("email", "email").param("password", "password")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/login"));
+	}
+
+	@WithAnonymousUser
+	@Test
+	public void testUserRegistrationForAlreadyRegistered() throws Exception {
+		when(Boolean.valueOf(userService.isUserAlreadyRegistered("test@test.com"))).thenReturn(Boolean.TRUE);
+		mvc.perform(post("/register").param("firstName", "firstName").param("lastName", "lastName").param("email", "test@test.com").param("password", "password")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/registration?error"));
 	}
 
 }

@@ -5,7 +5,8 @@ public interface GuestbookConstants {
 	public final String MAPPING_GUESTBOOK_LOGIN = "/login";
 	public final String MAPPING_GUESTBOOK_HOME = "/guestbook";
 	public final String MAPPING_GUESTBOOK_ADD = "/guestbook/add";
-	public final String MAPPING_GUESTBOOK_EDIT = "/guestbook/edit";
+	public final String MAPPING_GUESTBOOK_EDIT_NOTE = "/guestbook/edit-note";
+	public final String MAPPING_GUESTBOOK_EDIT_PICTURE = "/guestbook/edit-picture";
 	public final String MAPPING_GUESTBOOK_APPROVE = "/guestbook/approve";
 	public final String MAPPING_GUESTBOOK_DELETE = "/guestbook/delete";
 	public final String MAPPING_GUESTBOOK_REGISTER = "/register";

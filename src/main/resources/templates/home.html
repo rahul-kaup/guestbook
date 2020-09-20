@@ -155,7 +155,7 @@ input, a, button {
 
 			<!-- edit note -->
 			<div th:if="*{message.note != null}" style="display: none;" th:id="@{'editNote' + ${message.messageId}}">
-				<form th:action="@{/guestbook/edit}" method="post">
+				<form th:action="@{/guestbook/edit-note}" method="post">
 					<input type="hidden" name="messageId" th:value="${message.messageId}" />
 					<div>
 						<textarea rows="2" cols="50" name="editedNote" th:text="${message.note}"></textarea>
@@ -167,6 +167,21 @@ input, a, button {
 			<!-- the picture -->
 			<div th:if="*{message.note == null}" style="padding: 10px;">
 				<img id='picture' style="height: 200px; overflow: hidden;" th:src="@{'data:image/jpg;base64,' + *{T(org.springframework.util.Base64Utils).encodeToString(message.picture)}}" />
+			</div>
+
+			<!-- edit picture -->
+			<div th:if="*{message.picture != null}" style="display: none;" th:id="@{'editNote' + ${message.messageId}}">
+				<form th:action="@{/guestbook/edit-picture}" method="post" enctype="multipart/form-data">
+					<input type="hidden" name="messageId" th:value="${message.messageId}" />
+					<div>
+						<input type="file" id="imgInp" name="picture" accept="image/*" style="width: 118px" oninput="javascript:validateImage()">
+					</div>
+					<!--  image preview -->
+					<div style="padding: 10px;">
+						<img id='img-upload' style="height: 100px;" />
+					</div>
+					<input type="submit" value="Save" class="btn btn-light btn-lg" />
+				</form>
 			</div>
 
 			<!-- the author -->
@@ -184,7 +199,7 @@ input, a, button {
 				</div>
 
 				<!-- edit button -->
-				<div th:if="*{message.note != null}" th:id="@{'editButton' + ${message.messageId}}">
+				<div th:id="@{'editButton' + ${message.messageId}}">
 					<input type="submit" value="Edit" class="btn btn-light btn-lg" th:onclick="@{'javascript:editMessage('+${message.messageId}+')'}" />
 				</div>
 
