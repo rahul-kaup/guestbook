@@ -28,14 +28,36 @@ public class UserService implements GuestbookConstants {
 		return userRepository.getUserIdByUsername(username);
 	}
 
+	/**
+	 * Creates a new user
+	 * 
+	 * @param userBean
+	 * @return
+	 */
 	public boolean createUser(UserBean userBean) {
-		logger.debug("getUseridByUsername() :: username = {}", userBean.getEmail());
+		logger.debug("createUser() :: username = {}", userBean.getEmail());
+
 		User user = new User();
 		user.setUsername(userBean.getEmail());
 		user.setFullname(String.format("%s %s", userBean.getFirstName(), userBean.getLastName()));
 		user.setRole(USER);
 		user.setPassword(userBean.getPassword());
 		return userRepository.save(user) != null;
+	}
+
+	/**
+	 * Returns wheter user already exists
+	 * 
+	 * @param username
+	 * @return
+	 */
+	public boolean isUserAlreadyRegistered(String username) {
+		User user = userRepository.getUserByUsername(username);
+		logger.debug("user = " + user);
+		if (user != null) {
+			return true;
+		}
+		return false;
 	}
 
 }

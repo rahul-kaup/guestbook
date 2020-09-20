@@ -31,59 +31,56 @@ body {
 input, a, button {
 	font-size: x-large;
 }
-
 </style>
 
-<!-- javascript for image preview -->
+
 <script type="text/javascript">
-	$(document).ready(
-			function() {
-				$(document).on(
-						'change',
-						'.btn-file :file',
-						function() {
-							var input = $(this), label = input.val().replace(
-									/\\/g, '/').replace(/.*\//, '');
-							input.trigger('fileselect', [ label ]);
-						});
+	// image preview
+	$(document).ready(function() {
+		$(document).on('change', '.btn-file :file', function() {
+			var input = $(this), label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+			input.trigger('fileselect', [ label ]);
+		});
 
-				$('.btn-file :file').on(
-						'fileselect',
-						function(event, label) {
-
-							var input = $(this).parents('.input-group').find(
-									':text'), log = label;
-
-							if (input.length) {
-								input.val(log);
-							} else {
-								if (log)
-									alert(log);
-							}
-
-						});
-				function readURL(input) {
-					if (input.files && input.files[0]) {
-						var reader = new FileReader();
-
-						reader.onload = function(e) {
-							$('#img-upload').attr('src', e.target.result);
-						}
-
-						reader.readAsDataURL(input.files[0]);
-					}
+		$('.btn-file :file').on('fileselect', function(event, label) {
+			var input = $(this).parents('.input-group').find(':text'), log = label;
+			if (input.length) {
+				input.val(log);
+			} else {
+				if (log)
+					alert(log);
+			}
+		});
+		function readURL(input) {
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					$('#img-upload').attr('src', e.target.result);
 				}
+				reader.readAsDataURL(input.files[0]);
+			}
+		}
 
-				$("#imgInp").change(function() {
-					readURL(this);
-				});
-			});
+		$("#imgInp").change(function() {
+			readURL(this);
+		});
+	});
 
 	// method for edit feature ui changes
 	function editMessage(messageId) {
 		$('#editNote' + messageId).show();
 		$('#messageNote' + messageId).hide();
 		$('#editButton' + messageId).hide();
+	}
+
+	// validation of note input
+	function validateNote() {
+		$('#sendButton').prop('disabled', !$('#note').val());
+	}
+
+	// validation of image input
+	function validateImage() {
+		$('#sendButton').prop('disabled', !$('#imgInp').val());
 	}
 </script>
 
@@ -92,11 +89,11 @@ input, a, button {
 
 	<div align="center" style="float: left">Guestbook</div>
 
-	<div sec:authorize="isAnonymous()" align="right" style="float: right">
+	<div sec:authorize="isAnonymous()" style="float: right">
 		<a href="/login"> Login</a>
 	</div>
 
-	<div sec:authorize="isAuthenticated()" align="right" style="float: right">
+	<div sec:authorize="isAuthenticated()" style="float: right">
 		<form action="/logout" method="get" id="logoutForm">
 			<input type="submit" value="Logout " class="btn btn-link btn-lg" />
 		</form>
@@ -105,6 +102,9 @@ input, a, button {
 	<div style="width: 60%; margin: auto; clear: left">
 
 		<!-- message entry -->
+
+		<div sec:authorize="isAnonymous()" align="center">Please login to leave a message</div>
+
 		<div style="" align="center" sec:authorize="hasRole('USER')">
 			<form th:action="@{/guestbook/add}" method="post" enctype="multipart/form-data">
 				<div>
@@ -114,32 +114,39 @@ input, a, button {
 
 					<!-- input option -->
 					<div>
-						<label class="radio-inline"> <input type="radio" name="messageType" value="note" checked onclick="javascript:$('#imageContainer').hide();$('#note').show();"> Note
-						</label> <label class="radio-inline"> <input type="radio" name="messageType" value="picture" onclick="javascript:$('#imageContainer').show();$('#note').hide();"> Picture
+						<label class="radio-inline">
+							<input type="radio" name="messageType" value="note" checked onclick="javascript:$('#imageContainer').hide();$('#note').show();validateNote();">
+							Note
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="messageType" value="picture" onclick="javascript:$('#imageContainer').show();$('#note').hide();validateImage();">
+							Picture
 						</label>
 					</div>
 
 					<!-- text input -->
-					<textarea rows="2" cols="50" name="note" id="note"></textarea>
+					<textarea rows="2" cols="50" name="note" id="note" oninput="javascript:validateNote()"></textarea>
 
 					<!-- image input -->
 					<div id="imageContainer" style="display: none;">
 						<div>
-							<input type="file" id="imgInp" name="picture" accept="image/*" style="width: 118px">
+							<input type="file" id="imgInp" name="picture" accept="image/*" style="width: 118px" oninput="javascript:validateImage()">
 						</div>
 						<!--  image preview -->
 						<div style="padding: 10px;">
-							<img id='img-upload' style="height: 100px; overflow: hidden;" />
+							<img id='img-upload' style="height: 100px;" />
 						</div>
 					</div>
 				</div>
 
 				<!-- send button -->
 				<div>
-					<input type="submit" value="Send " class="btn btn-light btn-lg" />
+					<input type="submit" value="Send " class="btn btn-light btn-lg" disabled="disabled" id="sendButton" />
 				</div>
 			</form>
 		</div>
+
+		<div align="center" th:if="${#lists.isEmpty(messages)}" style="padding: 20px;">There are currently no messages to display</div>
 
 		<div th:each="message: ${messages}" style="border-bottom: 1px solid gray; padding: 20px;" align="center">
 

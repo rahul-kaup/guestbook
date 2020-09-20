@@ -13,6 +13,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 public class MessageBeanTest {
 
+	@SuppressWarnings("static-method")
 	@Test
 	void testDescendingSorting() {
 		MessageBean bean1 = new MessageBean(Long.valueOf(1L), "author", "note", null, false);

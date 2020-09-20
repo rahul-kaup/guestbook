@@ -138,8 +138,12 @@ public class GuestBookController implements GuestbookConstants {
 	public RedirectView createUser(@RequestParam String firstName, @RequestParam String lastName, @RequestParam String email, @RequestParam String password) {
 		logger.debug("createUser() :: email = {}", email);
 
-		userService.createUser(new UserBean(email, firstName, lastName, password));
+		if (userService.isUserAlreadyRegistered(email)) {
+			logger.warn("createUser() :: email {} already registered", email);
+			return new RedirectView(REDIRECT_REGISTRATION_ALREADY_REGISTERED);
+		}
 
+		userService.createUser(new UserBean(email, firstName, lastName, password));
 		return new RedirectView(REDIRECT_LOGIN);
 	}
 

@@ -11,9 +11,9 @@ import com.guestbook.entity.User;
 public interface UserRepository extends CrudRepository<User, Long> {
 
 	@Query(value = "SELECT user_id FROM user WHERE username = ?1", nativeQuery = true)
-	Long getUserIdByUsername(String name);
+	Long getUserIdByUsername(String username);
 
 	@Query(value = "SELECT * FROM user WHERE username = ?1", nativeQuery = true)
-	User getUserByUsername(String name);
+	User getUserByUsername(String username);
 
 }

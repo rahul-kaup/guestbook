@@ -11,6 +11,7 @@ public interface GuestbookConstants {
 	public final String MAPPING_GUESTBOOK_REGISTER = "/register";
 	public final String VIEW_HOME = "home";
 	public final String REDIRECT_LOGIN_UNAUTHORIZED = "/login?unauthorized";
+	public final String REDIRECT_REGISTRATION_ALREADY_REGISTERED = "/registration?error";
 	public final String REDIRECT_LOGIN = "/login";
 	public final String MESSAGE_TYPE_NOTE = "note";
 	public final String MODEL_ATTRIBUTE_MESSAGES = "messages";

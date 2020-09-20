@@ -6,6 +6,9 @@
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="css/bootstrap.min.css">
 
+<!-- google apis great vibes font -->
+<link href='http://fonts.googleapis.com/css?family=Great+Vibes' rel='stylesheet' type='text/css'>
+
 <!-- jQuery library -->
 <script src="js/jquery.min.js"></script>
 
@@ -16,54 +19,97 @@
 <script src="js/bootstrap.min.js"></script>
 
 <style type="text/css">
-div {
-	/*border: 1px solid black;*/
-	
+body {
+	padding: 10px;
+	font-size: x-large;
+	font-family: 'great vibes', calibri;
+	color: #290001;
+	text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+input, a, button {
+	font-size: x-large;
 }
 </style>
+
+<script type="text/javascript">
+	// javascript for disabling form submissions if there are invalid fields
+	(function() {
+		'use strict';
+		window.addEventListener('load', function() {
+			// Fetch all the forms we want to apply custom Bootstrap validation styles to
+			var forms = document.getElementsByClassName('needs-validation');
+			// Loop over them and prevent submission
+			var validation = Array.prototype.filter.call(forms, function(form) {
+				form.addEventListener('submit', function(event) {
+					if (form.checkValidity() === false) {
+						event.preventDefault();
+						event.stopPropagation();
+					}
+					form.classList.add('was-validated');
+				}, false);
+			});
+		}, false);
+	})();
+</script>
+
 </head>
 
 <body>
-	<div style="margin-left: 35%; margin-top: 5%;">
+	<div align="left" style="float: left">
+		<a href="/guestbook"> Home</a>
+	</div>
+	<div align="right" style="float: right">
+		<a href="/login"> Login </a>
+	</div>
 
-		<h2>Registration</h2>
-		</br>
+	<div align="center">
+		<h2>Please Register</h2>
+		<br />
 
-		<form action="/register" method="POST" enctype="utf8" class="form-horizontal">
+		<form action="/register" method="POST" enctype="utf8" class="form-horizontal needs-validation" novalidate>
 
 			<div class="form-group">
-				<label class="control-label col-sm-3" for="firstName">First Name</label>
-				<div class="col-sm-4">
-					<input name="firstName" type="text" class="form-control" id="firstName" placeholder="Enter first name" />
+				<label class="control-label col-sm-3" for="firstName">First Name:</label>
+				<div class="col-sm-2">
+					<input name="firstName" type="text" class="form-control" id="firstName" placeholder="Enter first name" required />
+					<div class="valid-feedback">Looks good!</div>
+					<div class="invalid-feedback">Please enter a valid first name.</div>
 				</div>
+				<div class="col-sm-4" style="width: 100%"></div>
 			</div>
 
 			<div class="form-group">
-				<label class="control-label col-sm-3" for="email">Last Name</label>
-				<div class="col-sm-4">
-					<input type="text" class="form-control" name="lastName" placeholder="Enter last name">
+				<label class="control-label col-sm-3" for="lastName">Last Name:</label>
+				<div class="col-sm-2">
+					<input type="text" class="form-control" name="lastName" placeholder="Enter last name" required>
+					<div class="valid-feedback">Looks good!</div>
+					<div class="invalid-feedback">Please enter a valid last name.</div>
 				</div>
 			</div>
 
 			<div class="form-group">
 				<label class="control-label col-sm-3" for="email">Email:</label>
-				<div class="col-sm-4">
-					<input type="email" class="form-control" name="email" placeholder="Enter email">
+				<div class="col-sm-2">
+					<input type="email" class="form-control" name="email" placeholder="Enter email" required>
+					<div class="valid-feedback">Looks good!</div>
+					<div class="invalid-feedback">Please enter a valid email.</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-3" for="pwd">Password:</label>
-				<div class="col-sm-4">
-					<input type="password" class="form-control" name="password" placeholder="Enter password">
+				<div class="col-sm-2">
+					<input type="password" class="form-control" name="password" placeholder="Enter password" required>
+					<div class="valid-feedback">Looks good!</div>
+					<div class="invalid-feedback">Please enter a valid password.</div>
 				</div>
 			</div>
-			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10">
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</div>
+			<div class="col-sm-offset-2 col-sm-10">
+				<button type="submit" class="btn btn-secondary">Submit</button>
 			</div>
-
+			<div th:if="${param.error}" align="center" style="color: red;">This email has already been registered.</div>
 		</form>
+
 	</div>
 </body>
 </html>

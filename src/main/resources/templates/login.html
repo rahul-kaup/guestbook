@@ -6,6 +6,9 @@
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="css/bootstrap.min.css">
 
+<!-- google apis great vibes font -->
+<link href='http://fonts.googleapis.com/css?family=Great+Vibes' rel='stylesheet' type='text/css'>
+
 <!-- jQuery library -->
 <script src="js/jquery.min.js"></script>
 
@@ -18,37 +21,81 @@
 <style type="text/css">
 .login-box {
 	margin: auto;
-	width: 50%;
+	width: 40%;
 	padding: 10px;
 	border: 1px solid #dbcbbd;
 }
 
 .container {
-	padding: 100px;
+	padding: 50px;
+}
+
+body {
+	padding: 10px;
+	font-size: xx-large;
+	font-family: 'great vibes', calibri;
+	color: #290001;
+	text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+input, a, button {
+	font-size: x-large;
+}
+
+.error-message {
+	color: red;
 }
 </style>
-
+<script type="text/javascript">
+	//javaScript for disabling form submissions if there are invalid fields
+	(function() {
+		'use strict';
+		window.addEventListener('load', function() {
+			// Fetch all the forms we want to apply custom Bootstrap validation styles to
+			var forms = document.getElementsByClassName('needs-validation');
+			// Loop over them and prevent submission
+			var validation = Array.prototype.filter.call(forms, function(form) {
+				form.addEventListener('submit', function(event) {
+					if (form.checkValidity() === false) {
+						event.preventDefault();
+						event.stopPropagation();
+					}
+					form.classList.add('was-validated');
+				}, false);
+			});
+		}, false);
+	})();
+</script>
 </head>
 <body>
 
+	<div style="float: left">
+		<a href="/guestbook"> Home</a>
+	</div>
+
+
+
 	<div class="container">
+		<h2 align="center">Please Login</h2>
+		<div th:if="${param.error}" class="error-message" align="center" style="color: re">Invalid credentials.</div>
+		<div th:if="${param.unauthorized}" align="center" class="error-message">You do not have enough permissions to perform this action. Please login.</div>
+		<div th:if="${param.logout}" align="center">You have been logged out.</div>
 
 		<div class="login-box">
-
-			<form th:action="@{/login}" method="post">
+			<form th:action="@{/login}" method="post" class="form-horizontal needs-validation" novalidate>
 				<div class="form-group">
-					<label for="username">Username:</label>
-					<input type="text" class="form-control" placeholder="Enter email" name="username">
+					<label for="username">Email:</label>
+					<input type="email" class="form-control col-md-8" placeholder="Enter email" name="username" required="required">
+					<div class="invalid-feedback">Please enter a valid email address.</div>
 				</div>
 				<div class="form-group">
 					<label for="password">Password:</label>
-					<input type="password" class="form-control" placeholder="Enter password" name="password">
+					<input type="password" class="form-control col-md-8" placeholder="Enter password" name="password" required="required">
+					<div class="invalid-feedback">Please enter a password.</div>
 				</div>
 
 				<button type="submit" class="btn btn-secondary">Sign In</button>
-				<div th:if="${param.error}">Invalid username and password.</div>
-				<div th:if="${param.unauthorized}">You do not have enough permissions to perform this action.</div>
-				<div th:if="${param.logout}">You have been logged out.</div>
+
 				<div align="right">
 					<a th:href="@{/registration}">Register New User</a>
 				</div>

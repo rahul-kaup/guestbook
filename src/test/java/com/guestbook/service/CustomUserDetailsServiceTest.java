@@ -21,6 +21,7 @@ class CustomUserDetailsServiceTest {
 	@InjectMocks
 	private CustomUserDetailsService customUserDetailsService;
 
+	@SuppressWarnings("deprecation")
 	@Test
 	void testDefaultAdminDetails() {
 
@@ -31,6 +32,7 @@ class CustomUserDetailsServiceTest {
 		assertEquals(org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder().username("admin@guestbook.com").password("pass").roles("ADMIN").build(), customUserDetailsService.loadUserByUsername("admin@guestbook.com"));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	void testDefaultUserDetails() {
 
@@ -41,6 +43,7 @@ class CustomUserDetailsServiceTest {
 		assertEquals(org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder().username("user@guestbook.com").password("pass").roles("USER").build(), customUserDetailsService.loadUserByUsername("user@guestbook.com"));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	void testUserDetails() {
 
